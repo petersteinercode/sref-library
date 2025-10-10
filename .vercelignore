@@ -1,5 +1,4 @@
 # Exclude large data files from Vercel deployment
-output_test/
 output_test_originals/
 assets/
 *.pdf

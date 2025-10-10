@@ -59,8 +59,9 @@ def load_search_index():
 
 def get_sref_thumbnails(sref_code, count=10):
     """Get thumbnail paths for a specific SREF code."""
-    # Look for images with this SREF code (now JPG format)
-    pattern = os.path.join(OUTPUT_DIR, f"{sref_code}_*.jpg")
+    # Look for images with this SREF code in static/images (JPG format)
+    static_images_dir = os.path.join(STATIC_DIR, "images")
+    pattern = os.path.join(static_images_dir, f"{sref_code}_*.jpg")
     image_files = glob.glob(pattern)
     
     # Sort to ensure consistent ordering
