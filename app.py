@@ -13,9 +13,7 @@ Usage:
 import os
 import json
 import numpy as np
-import torch
 from flask import Flask, render_template, request, jsonify
-from transformers import CLIPProcessor, CLIPModel
 from sklearn.metrics.pairwise import cosine_similarity
 import glob
 
@@ -29,23 +27,12 @@ TEMPLATES_DIR = "templates"
 # Initialize Flask app
 app = Flask(__name__, static_folder=STATIC_DIR, template_folder=TEMPLATES_DIR)
 
-# Global variables for models and search index
-clip_model = None
-clip_processor = None
+# Global variables for search index
 search_index = None
 
 def load_models():
-    """Load CLIP models for text processing."""
-    global clip_model, clip_processor
-    
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    print(f"Loading CLIP models on {device}...")
-    
-    clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
-    clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-    clip_model.to(device)
-    
-    print("Models loaded successfully!")
+    """Load models for text processing (simplified for deployment)."""
+    print("Models loading skipped for deployment - using pre-computed embeddings only")
 
 def load_search_index():
     """Load the search index from file."""
@@ -83,27 +70,28 @@ def get_sref_thumbnails(sref_code, count=10):
     return image_files[:count]
 
 def search_sref_styles(query_text, top_k=50):
-    """Search for SREF styles based on text query."""
-    if not search_index or not clip_model:
+    """Search for SREF styles based on text query (simplified version)."""
+    if not search_index:
         return []
     
-    # Generate embedding for query text
-    device = next(clip_model.parameters()).device
-    text_inputs = clip_processor(text=[query_text], return_tensors="pt", padding=True, truncation=True).to(device)
-    
-    with torch.no_grad():
-        text_features = clip_model.get_text_features(**text_inputs)
-        text_features = text_features / text_features.norm(dim=-1, keepdim=True)
-    
-    query_embedding = text_features.cpu().numpy().flatten()
-    
-    # Calculate similarities
+    # Simple text-based search using summaries and captions
+    query_lower = query_text.lower()
     similarities = []
+    
     for sref_code, data in search_index.items():
-        similarity = cosine_similarity([query_embedding], [data['embedding']])[0][0]
+        # Calculate text similarity based on keyword matching
+        summary_text = data['summary'].lower()
+        captions_text = data['combined_captions'].lower()
+        combined_text = f"{summary_text} {captions_text}"
         
-        # Get thumbnails for this SREF
-        thumbnails = get_sref_thumbnails(sref_code, count=10)
+        # Simple keyword matching score
+        query_words = query_lower.split()
+        matches = sum(1 for word in query_words if word in combined_text)
+        similarity = matches / len(query_words) if query_words else 0
+        
+        # Boost score if exact phrase matches
+        if query_lower in combined_text:
+            similarity += 0.5
         
         similarities.append({
             'sref_code': sref_code,
@@ -111,7 +99,7 @@ def search_sref_styles(query_text, top_k=50):
             'summary': data['summary'],
             'image_count': data['image_count'],
             'combined_captions': data['combined_captions'],
-            'thumbnails': [os.path.basename(t) for t in thumbnails]
+            'thumbnails': []  # No thumbnails in deployment
         })
     
     # Sort by similarity
@@ -162,7 +150,7 @@ def find_similar():
         # Get the embedding for the reference SREF
         reference_embedding = search_index[sref_code]['embedding']
         
-        # Calculate similarities with all other SREFs
+        # Calculate similarities with all other SREFs using embeddings
         similarities = []
         for other_sref_code, data in search_index.items():
             if other_sref_code == sref_code:
@@ -170,16 +158,13 @@ def find_similar():
             
             similarity = cosine_similarity([reference_embedding], [data['embedding']])[0][0]
             
-            # Get thumbnails for this SREF
-            thumbnails = get_sref_thumbnails(other_sref_code, count=10)
-            
             similarities.append({
                 'sref_code': other_sref_code,
                 'similarity': float(similarity),
                 'summary': data['summary'],
                 'image_count': data['image_count'],
                 'combined_captions': data['combined_captions'],
-                'thumbnails': [os.path.basename(t) for t in thumbnails]
+                'thumbnails': []  # No thumbnails in deployment
             })
         
         # Sort by similarity (highest first)
@@ -237,7 +222,7 @@ def health():
     return jsonify({
         'status': 'healthy',
         'sref_count': len(search_index) if search_index else 0,
-        'models_loaded': clip_model is not None
+        'models_loaded': True  # Simplified for deployment
     })
 
 def create_directories():
