@@ -59,8 +59,8 @@ def load_search_index():
 
 def get_sref_thumbnails(sref_code, count=10):
     """Get thumbnail paths for a specific SREF code."""
-    # Look for images with this SREF code
-    pattern = os.path.join(OUTPUT_DIR, f"{sref_code}_*.png")
+    # Look for images with this SREF code (now JPG format)
+    pattern = os.path.join(OUTPUT_DIR, f"{sref_code}_*.jpg")
     image_files = glob.glob(pattern)
     
     # Sort to ensure consistent ordering
@@ -93,13 +93,16 @@ def search_sref_styles(query_text, top_k=50):
         if query_lower in combined_text:
             similarity += 0.5
         
+        # Get thumbnails for this SREF
+        thumbnails = get_sref_thumbnails(sref_code, count=10)
+        
         similarities.append({
             'sref_code': sref_code,
             'similarity': float(similarity),
             'summary': data['summary'],
             'image_count': data['image_count'],
             'combined_captions': data['combined_captions'],
-            'thumbnails': []  # No thumbnails in deployment
+            'thumbnails': [os.path.basename(t) for t in thumbnails]
         })
     
     # Sort by similarity
@@ -158,13 +161,16 @@ def find_similar():
             
             similarity = cosine_similarity([reference_embedding], [data['embedding']])[0][0]
             
+            # Get thumbnails for this SREF
+            thumbnails = get_sref_thumbnails(other_sref_code, count=10)
+            
             similarities.append({
                 'sref_code': other_sref_code,
                 'similarity': float(similarity),
                 'summary': data['summary'],
                 'image_count': data['image_count'],
                 'combined_captions': data['combined_captions'],
-                'thumbnails': []  # No thumbnails in deployment
+                'thumbnails': [os.path.basename(t) for t in thumbnails]
             })
         
         # Sort by similarity (highest first)
