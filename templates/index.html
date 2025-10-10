@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SREF Style Search</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Instrument+Serif:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1 class="title">SREF Style Search</h1>
+        <p class="subtitle">
+          Find visual styles from Midjourney V7 SREF collections
+        </p>
+      </header>
+
+      <div class="search-section">
+        <div class="search-container">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Describe the visual style you're looking for..."
+            class="search-input"
+          />
+          <button id="searchButton" class="search-button">Search</button>
+        </div>
+        <div class="search-examples">
+          <p>Try searching for:</p>
+          <div class="example-tags" id="exampleTags">
+            <!-- Tags will be loaded dynamically from the API -->
+          </div>
+          <button id="shuffleButton" class="shuffle-button">
+            Shuffle Examples
+          </button>
+        </div>
+      </div>
+
+      <div id="loadingIndicator" class="loading hidden">
+        <div class="spinner"></div>
+        <p>Searching SREF styles...</p>
+      </div>
+
+      <div id="resultsSection" class="results-section hidden">
+        <div class="results-header">
+          <h2 id="resultsTitle">Search Results</h2>
+          <p id="resultsCount" class="results-count"></p>
+        </div>
+        <div id="resultsContainer" class="results-grid">
+          <!-- Results will be populated here -->
+        </div>
+        <div id="pagination" class="pagination hidden">
+          <button id="prevButton" class="pagination-button">Previous</button>
+          <span id="paginationInfo" class="pagination-info"></span>
+          <button id="nextButton" class="pagination-button">Next</button>
+        </div>
+      </div>
+
+      <div id="errorMessage" class="error-message hidden">
+        <p id="errorText"></p>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  </body>
+</html>
