@@ -209,9 +209,9 @@ class SREFSearch {
     const carouselImagesHtml = result.thumbnails
       .map(
         (thumb, index) =>
-          `<img src="/static/images/${thumb}" alt="SREF ${
-            result.sref_code
-          } image ${
+          `<img src="${
+            thumb.startsWith("http") ? thumb : "/static/images/" + thumb
+          }" alt="SREF ${result.sref_code} image ${
             index + 1
           }" class="carousel-image" onclick="openImageModal('${
             result.sref_code
@@ -685,7 +685,7 @@ function openImageModal(srefCode, startIndex = 0) {
   // Create images
   const images = result.thumbnails.map((thumb, index) => {
     const img = document.createElement("img");
-    img.src = `/static/images/${thumb}`;
+    img.src = thumb.startsWith("http") ? thumb : `/static/images/${thumb}`;
     img.alt = `SREF ${srefCode} image ${index + 1}`;
     img.style.cssText = `
           max-width: 100%;

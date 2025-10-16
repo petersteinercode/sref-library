@@ -1,37 +1,59 @@
-# Exclude large data files from Vercel deployment
-output_test_originals/
+# Large files and directories that shouldn't be deployed
 assets/
+output_test/
+output_test_originals/
+
+# Large image directory - move to external storage
+static/images/
+
+# Keep image mapping files for deployment
+!gcs_image_mapping.json
+!cloudinary_image_mapping.json
+!s3_image_mapping.json
+!github_image_mapping.json
+!blob_image_mapping.json
+
+# Development and analysis scripts
+analyze_sref_styles.py
+optimize_images.py
+process_one_page*.py
+search_sref.py
+
+# Upload scripts (not needed for deployment)
+upload_*.py
+make_bucket_public.sh
+
+# Documentation
+*.md
+DEPLOYMENT.md
+README_SREF_ANALYSIS.md
+TAG_SYSTEM.md
+
+# Large PDF files
 *.pdf
 
-# Exclude development files
+# Python cache
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
-env/
-venv/
-.venv/
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.log
-.git
-.mypy_cache
-.pytest_cache
-.hypothesis
+*.so
 
-# OS generated files
+# Virtual environment
+venv/
+env/
+.env
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
+
+# Logs
+*.log

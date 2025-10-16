@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SREF Style Search</title>
+    <title>SREF Search</title>
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='css/style.css') }}"
@@ -16,9 +16,15 @@
   <body>
     <div class="container">
       <header class="header">
-        <h1 class="title">SREF Style Search</h1>
+        <h1 class="title">SREF Search</h1>
         <p class="subtitle">
-          Find visual styles from Midjourney V7 SREF collections
+          Find Midjourney SREFs by color, style, or medium. SREFs curated by
+          <a
+            href="https://x.com/gizakdag"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Gizem Akdag</a
+          >.
         </p>
       </header>
 
@@ -34,12 +40,14 @@
         </div>
         <div class="search-examples">
           <p>Try searching for:</p>
-          <div class="example-tags" id="exampleTags">
-            <!-- Tags will be loaded dynamically from the API -->
+          <div class="examples-container">
+            <div class="example-tags" id="exampleTags">
+              <!-- Tags will be loaded dynamically from the API -->
+            </div>
+            <button id="shuffleButton" class="shuffle-button">
+              Shuffle Examples
+            </button>
           </div>
-          <button id="shuffleButton" class="shuffle-button">
-            Shuffle Examples
-          </button>
         </div>
       </div>
 
@@ -52,6 +60,9 @@
         <div class="results-header">
           <h2 id="resultsTitle">Search Results</h2>
           <p id="resultsCount" class="results-count"></p>
+          <p class="results-instructions">
+            Click 📋 to copy an SREF code. Click 🔍 to see similar SREFs.
+          </p>
         </div>
         <div id="resultsContainer" class="results-grid">
           <!-- Results will be populated here -->

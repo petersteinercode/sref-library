@@ -12,9 +12,8 @@ Usage:
 
 import os
 import json
-import numpy as np
+import math
 from flask import Flask, render_template, request, jsonify
-from sklearn.metrics.pairwise import cosine_similarity
 import glob
 
 # Configuration
@@ -29,6 +28,21 @@ app = Flask(__name__, static_folder=STATIC_DIR, template_folder=TEMPLATES_DIR)
 
 # Global variables for search index
 search_index = None
+
+def cosine_similarity_python(a, b):
+    """Simple cosine similarity using pure Python."""
+    # Calculate dot product
+    dot_product = sum(x * y for x, y in zip(a, b))
+    
+    # Calculate magnitudes
+    magnitude_a = math.sqrt(sum(x * x for x in a))
+    magnitude_b = math.sqrt(sum(x * x for x in b))
+    
+    # Avoid division by zero
+    if magnitude_a == 0 or magnitude_b == 0:
+        return 0
+    
+    return dot_product / (magnitude_a * magnitude_b)
 
 def load_models():
     """Load models for text processing (simplified for deployment)."""
@@ -45,11 +59,11 @@ def load_search_index():
     with open(index_path, 'r') as f:
         data = json.load(f)
     
-    # Convert embeddings back to numpy arrays
+    # Convert embeddings back to lists (no numpy needed)
     search_index = {}
     for sref_code, info in data.items():
         search_index[sref_code] = {
-            'embedding': np.array(info['embedding']),
+            'embedding': list(info['embedding']),  # Convert to list instead of numpy array
             'summary': info['summary'],
             'image_count': info['image_count'],
             'combined_captions': info['combined_captions']
@@ -57,18 +71,54 @@ def load_search_index():
     
     print(f"Loaded search index with {len(search_index)} SREF styles")
 
+def load_image_mapping():
+    """Load the image mapping from any available provider."""
+    # Try different mapping files in order of preference
+    mapping_files = [
+        "gcs_image_mapping.json",         # Google Cloud Storage (user's choice)
+        "cloudinary_image_mapping.json",  # Cloudinary
+        "s3_image_mapping.json",          # AWS S3
+        "github_image_mapping.json",      # GitHub Pages
+        "blob_image_mapping.json"         # Vercel Blob (if available)
+    ]
+    
+    for mapping_file in mapping_files:
+        if os.path.exists(mapping_file):
+            with open(mapping_file, 'r') as f:
+                mapping = json.load(f)
+                print(f"Loaded image mapping from {mapping_file}")
+                return mapping
+    
+    return {}
+
 def get_sref_thumbnails(sref_code, count=10):
     """Get thumbnail paths for a specific SREF code."""
-    # Look for images with this SREF code in static/images (JPG format)
+    # First try to load external image mapping (Cloudinary, S3, GitHub, etc.)
+    image_mapping = load_image_mapping()
+    
+    if image_mapping:
+        # Use external URLs if mapping exists
+        thumbnails = []
+        for i in range(1, min(count + 1, 11)):
+            filename = f"{sref_code}_{i:02d}.jpg"
+            if filename in image_mapping:
+                # Handle different mapping formats
+                if isinstance(image_mapping[filename], dict):
+                    thumbnails.append(image_mapping[filename]['url'])
+                else:
+                    thumbnails.append(image_mapping[filename])
+        return thumbnails
+    
+    # Fallback to local images (for development)
     static_images_dir = os.path.join(STATIC_DIR, "images")
-    pattern = os.path.join(static_images_dir, f"{sref_code}_*.jpg")
-    image_files = glob.glob(pattern)
+    if os.path.exists(static_images_dir):
+        pattern = os.path.join(static_images_dir, f"{sref_code}_*.jpg")
+        image_files = glob.glob(pattern)
+        image_files.sort()
+        return image_files[:count]
     
-    # Sort to ensure consistent ordering
-    image_files.sort()
-    
-    # Return up to 'count' thumbnails
-    return image_files[:count]
+    # Return placeholder image names if no images found
+    return [f"{sref_code}_{i:02d}.jpg" for i in range(1, min(count + 1, 11))]
 
 def search_sref_styles(query_text, top_k=50):
     """Search for SREF styles based on text query (simplified version)."""
@@ -97,13 +147,23 @@ def search_sref_styles(query_text, top_k=50):
         # Get thumbnails for this SREF
         thumbnails = get_sref_thumbnails(sref_code, count=10)
         
+        # Handle both blob URLs and local file paths
+        thumbnail_names = []
+        for thumb in thumbnails:
+            if thumb.startswith('http'):
+                # It's a blob URL, use the full URL
+                thumbnail_names.append(thumb)
+            else:
+                # It's a local file path, use just the filename
+                thumbnail_names.append(os.path.basename(thumb))
+        
         similarities.append({
             'sref_code': sref_code,
             'similarity': float(similarity),
             'summary': data['summary'],
             'image_count': data['image_count'],
             'combined_captions': data['combined_captions'],
-            'thumbnails': [os.path.basename(t) for t in thumbnails]
+            'thumbnails': thumbnail_names
         })
     
     # Sort by similarity
@@ -160,10 +220,20 @@ def find_similar():
             if other_sref_code == sref_code:
                 continue  # Skip the reference SREF itself
             
-            similarity = cosine_similarity([reference_embedding], [data['embedding']])[0][0]
+            similarity = cosine_similarity_python(reference_embedding, data['embedding'])
             
             # Get thumbnails for this SREF
             thumbnails = get_sref_thumbnails(other_sref_code, count=10)
+            
+            # Handle both blob URLs and local file paths
+            thumbnail_names = []
+            for thumb in thumbnails:
+                if thumb.startswith('http'):
+                    # It's a blob URL, use the full URL
+                    thumbnail_names.append(thumb)
+                else:
+                    # It's a local file path, use just the filename
+                    thumbnail_names.append(os.path.basename(thumb))
             
             similarities.append({
                 'sref_code': other_sref_code,
@@ -171,7 +241,7 @@ def find_similar():
                 'summary': data['summary'],
                 'image_count': data['image_count'],
                 'combined_captions': data['combined_captions'],
-                'thumbnails': [os.path.basename(t) for t in thumbnails]
+                'thumbnails': thumbnail_names
             })
         
         # Sort by similarity (highest first)

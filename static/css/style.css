@@ -22,22 +22,33 @@ body {
 
 /* Header */
 .header {
-  text-align: center;
+  text-align: left;
   margin-bottom: 40px;
   color: white;
 }
 
 .title {
-  font-size: 3rem;
-  font-weight: 700;
+  font-size: 2.5rem;
+  font-weight: 600;
   margin-bottom: 10px;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .subtitle {
-  font-size: 1.2rem;
-  font-weight: 300;
+  font-size: 1.1rem;
+  font-weight: 400;
   opacity: 0.9;
+}
+
+.subtitle a {
+  color: #fff;
+  text-decoration: underline;
+  transition: all 0.3s ease;
+}
+
+.subtitle a:hover {
+  color: #ccc;
+  text-decoration: none;
 }
 
 /* Search section */
@@ -61,7 +72,7 @@ body {
   padding: 15px 20px;
   border: 2px solid #333;
   border-radius: 12px;
-  font-size: 1.1rem;
+  font-size: 1rem;
   transition: all 0.3s ease;
   outline: none;
   background: #000;
@@ -79,8 +90,8 @@ body {
   color: #000;
   border: none;
   border-radius: 12px;
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   min-width: 120px;
@@ -97,20 +108,28 @@ body {
 }
 
 .search-examples {
-  text-align: center;
+  text-align: left;
 }
 
 .search-examples p {
   margin-bottom: 15px;
   color: #ccc;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.examples-container {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .example-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .example-tag {
@@ -120,7 +139,7 @@ body {
   border-radius: 20px;
   font-family: "Instrument Sans", sans-serif;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 400;
   cursor: pointer;
   transition: all 0.3s ease;
   border: 1px solid #555;
@@ -139,9 +158,10 @@ body {
   padding: 8px 16px;
   border-radius: 20px;
   font-size: 0.9rem;
+  font-weight: 400;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: 15px;
+  display: inline-block;
 }
 
 .shuffle-button:hover {
@@ -194,14 +214,22 @@ body {
 }
 
 .results-header h2 {
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 500;
   margin-bottom: 10px;
   color: #fff;
 }
 
 .results-count {
   display: none;
+}
+
+.results-instructions {
+  color: #ccc;
+  font-size: 0.9rem;
+  font-weight: 400;
+  margin-top: 10px;
+  opacity: 0.8;
 }
 
 /* Results grid - 3 columns on desktop */
@@ -262,7 +290,7 @@ body {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.4);
   color: #000;
   border: none;
   width: 40px;
@@ -272,7 +300,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 1rem;
   transition: all 0.3s ease;
   opacity: 0;
   z-index: 3;
@@ -283,7 +311,7 @@ body {
 }
 
 .carousel-nav:hover {
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.6);
 }
 
 .carousel-nav.prev {
@@ -347,7 +375,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 0.9rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -365,7 +393,7 @@ body {
 
 .copy-icon,
 .similar-icon {
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
 /* Copy feedback - positioned near copy button */
@@ -374,6 +402,7 @@ body {
   top: 60px;
   left: 15px;
   font-size: 0.8rem;
+  font-weight: 400;
   color: #28a745;
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -414,7 +443,7 @@ body {
   border-radius: 12px;
   font-family: "Instrument Sans", sans-serif;
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: 400;
   cursor: pointer;
   transition: all 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.7);
@@ -451,6 +480,8 @@ body {
   border: 1px solid #555;
   padding: 10px 15px;
   border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 400;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -470,6 +501,8 @@ body {
 .pagination-info {
   color: #ccc;
   font-size: 0.9rem;
+  font-weight: 400;
+  font-family: "Instrument Sans", sans-serif;
 }
 
 /* Image Modal Styles */
@@ -517,7 +550,7 @@ body {
   .modal-nav {
     width: 40px !important;
     height: 40px !important;
-    font-size: 18px !important;
+    font-size: 1rem !important;
   }
 
   .modal-nav-prev {
@@ -532,7 +565,7 @@ body {
     top: -40px !important;
     width: 35px !important;
     height: 35px !important;
-    font-size: 18px !important;
+    font-size: 1rem !important;
   }
 
   .modal-dots {
@@ -593,6 +626,6 @@ body {
   }
 
   .sref-code {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
 }

@@ -1,0 +1,22 @@
+{
+  "name": "sref-library-blob",
+  "version": "1.0.0",
+  "description": "Vercel Blob storage integration for SREF Library",
+  "main": "index.js",
+  "scripts": {
+    "upload": "python upload_to_blob.py"
+  },
+  "dependencies": {
+    "@vercel/blob": "^0.15.0"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "vercel",
+    "blob",
+    "storage",
+    "images"
+  ],
+  "author": "",
+  "license": "MIT"
+}
+
